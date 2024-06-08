@@ -28,7 +28,7 @@ def refine_text_with_form_gpt(transcript_text):
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"다음 내용에서 원고와 피고, 그리고 법적 쟁점을 정리해주세요:\n\n{formatted_text}"}
+            {"role": "user", "content": f"다음 내용에서 원고와 피고를 분리하고, 법적 쟁점을 성립할 수 있는 죄명과 함께 상세하게 정리해주세요. :\n\n{formatted_text}"}
         ],
         max_tokens=1500,
         n=1,
@@ -73,23 +73,23 @@ def save_text_to_pdf(text, output_path):
     pdf.save()
 
 # 메인 함수
-def main():
-    transcript_pdf_path = "example.pdf"
-    output_pdf_path = "refined.pdf"
+# def main():
+#     transcript_pdf_path = "example.pdf"
+#     output_pdf_path = "refined.pdf"
 
-    # Step 2: transcript.pdf에서 텍스트 추출
-    extracted_text = extract_text_from_pdf(transcript_pdf_path)
-    print("Extracted Transcript Text:")
-    print(extracted_text)
+#     # Step 2: transcript.pdf에서 텍스트 추출
+#     extracted_text = extract_text_from_pdf(transcript_pdf_path)
+#     print("Extracted Transcript Text:")
+#     print(extracted_text)
 
-    # Step 3: 형식을 유지하며 AI를 통해 텍스트 수정
-    refined_text = refine_text_with_form_gpt(extracted_text)
-    print("Refined Text with Form:")
-    print(refined_text)
+#     # Step 3: 형식을 유지하며 AI를 통해 텍스트 수정
+#     refined_text = refine_text_with_form_gpt(extracted_text)
+#     print("Refined Text with Form:")
+#     print(refined_text)
 
-    # Step 4: 수정된 텍스트를 새로운 PDF로 저장
-    save_text_to_pdf(refined_text, output_pdf_path)
-    print(f"Refined transcript saved to {output_pdf_path}")
+#     # Step 4: 수정된 텍스트를 새로운 PDF로 저장
+#     save_text_to_pdf(refined_text, output_pdf_path)
+#     print(f"Refined transcript saved to {output_pdf_path}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
