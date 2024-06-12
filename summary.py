@@ -5,6 +5,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from dotenv import load_dotenv
 import os
+import re
 
 # 환경 변수 로드
 load_dotenv()
@@ -25,10 +26,10 @@ def extract_text_from_pdf(pdf_path):
 def refine_text_with_form_gpt(transcript_text):
     formatted_text = f"내용:\n{transcript_text}"
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"다음 내용에서 원고와 피고를 분리하고, 법적 쟁점을 성립할 수 있는 죄명과 함께 상세하게 정리해주세요. :\n\n{formatted_text}"}
+            {"role": "user", "content": f"다음 내용에서 원고와 피고를 분리하고, 법적 쟁점이 성립할 수 있는 죄명과 함께 상세하게 정리해주세요.(참고로 형사재판에서는 검사vs피고인 이고 민사재판에서는 원고vs 피고입니다. 그리고 죄명:설명 이런식으로 정리해주세요) :\n\n{formatted_text}"}
         ],
         max_tokens=1500,
         n=1,
@@ -36,6 +37,11 @@ def refine_text_with_form_gpt(transcript_text):
         temperature=0.7
     )
     return response.choices[0].message['content'].strip()
+
+# 죄명 추출 함수
+def extract_charges(refined_text):
+    charges = re.findall(r'\d+\.\s(.*?):', refined_text)
+    return charges
 
 # 수정된 텍스트를 PDF로 저장
 def save_text_to_pdf(text, output_path):
@@ -71,25 +77,3 @@ def save_text_to_pdf(text, output_path):
             y_position = height - margin
 
     pdf.save()
-
-# 메인 함수
-# def main():
-#     transcript_pdf_path = "example.pdf"
-#     output_pdf_path = "refined.pdf"
-
-#     # Step 2: transcript.pdf에서 텍스트 추출
-#     extracted_text = extract_text_from_pdf(transcript_pdf_path)
-#     print("Extracted Transcript Text:")
-#     print(extracted_text)
-
-#     # Step 3: 형식을 유지하며 AI를 통해 텍스트 수정
-#     refined_text = refine_text_with_form_gpt(extracted_text)
-#     print("Refined Text with Form:")
-#     print(refined_text)
-
-#     # Step 4: 수정된 텍스트를 새로운 PDF로 저장
-#     save_text_to_pdf(refined_text, output_pdf_path)
-#     print(f"Refined transcript saved to {output_pdf_path}")
-
-# if __name__ == "__main__":
-#     main()
