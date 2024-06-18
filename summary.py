@@ -43,6 +43,15 @@ def extract_charges(refined_text):
     charges = re.findall(r'\d+\.\s(.*?):', refined_text)
     return charges
 
+
+# 원고와 피고 추출 함수
+def extract_plaintiffs_defendants(refined_text):
+    plaintiffs = re.findall(r'원고:\s*(.*?)\s*피고:', refined_text, re.DOTALL)
+    defendants = re.findall(r'피고:\s*(.*?)(?:\n|$)', refined_text, re.DOTALL)
+
+    return plaintiffs, defendants
+
+
 # 수정된 텍스트를 PDF로 저장
 def save_text_to_pdf(text, output_path):
     pdfmetrics.registerFont(TTFont("맑은고딕", "malgun.ttf"))
