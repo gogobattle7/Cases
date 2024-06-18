@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stored Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .result-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 80%;
+            margin: 20px;
+            overflow: auto;
+        }
+        .result-container h1 {
+            margin-bottom: 20px;
+        }
+        .result-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .result-container li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .result-container pre {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <h1>Stored Search Results</h1>
+        {% for charge, summaries in results.items() %}
+        <h2>{{ charge }}</h2>
+        <ul>
+            {% for case_number, summary in summaries.items() %}
+            <li>
+                <strong>Case Number:</strong> {{ case_number }}<br>
+                <strong>Summary:</strong>
+                <pre>{{ summary }}</pre>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+</body>
+</html>
