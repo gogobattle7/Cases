@@ -46,6 +46,21 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+        .styled-button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .styled-button:hover {
+            background-color: #0056b3;
+        }
+        .file-upload {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +78,8 @@
             {% endfor %}
         </ul>
         {% endfor %}
+        
+        <a href="{{ url_for('pleading') }}" class="styled-button">Proceed to Pleading</a>
     </div>
 </body>
 </html>

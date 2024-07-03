@@ -37,6 +37,8 @@
     <div class="pleading-container">
         <h1>Pleading Document</h1>
         <pre>{{ pleading }}</pre>
+        <a href="{{ url_for('download_pleading_pdf') }}" class="styled-button">Download Pleading as PDF</a>
+        <a href="{{ url_for('defendant_response') }}" class="styled-button">피고의 답변서</a>
     </div>
 </body>
 </html>
