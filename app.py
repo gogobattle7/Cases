@@ -1,14 +1,17 @@
-from flask import Flask, request, redirect, url_for, send_from_directory, render_template
+from flask import Flask, request, redirect, url_for, send_from_directory, render_template, flash
 import os
 from summary import extract_text_from_pdf, refine_text_with_form_gpt, save_text_to_pdf, extract_charges, extract_plaintiffs_defendants
 import caseSearch
 import gptlaw
 from plaintiffs_pleading import generate_pleading
+from defendantReply import makeDefendantReply  # 피고의 답변서 생성 함수 추가
+import openai.error  # OpenAI 오류 핸들링 추가
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
 app.config['REFERENCE_FOLDER'] = 'references'
+app.secret_key = 'your_secret_key'  # 플래시 메시지용 시크릿 키 설정
 
 # 사용 가능한 죄명 리스트
 available_charges = ["명예훼손", "모욕", "사기", "횡령"]
@@ -17,8 +20,9 @@ available_charges = ["명예훼손", "모욕", "사기", "횡령"]
 search_results = {}
 summarized_results = {}
 case_details = {}
-pleading=""
-
+pleading = ""
+selected_charges = []  # 전역 변수로 선언
+defendant_reply=""
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -73,14 +77,27 @@ def upload_file():
 
 @app.route('/precedent', methods=['POST'])
 def precedent():
+    global search_results, summarized_results, selected_charges
     selected_charges = request.form.getlist('charges[]')
-    global search_results, summarized_results
-    search_results = {charge: caseSearch.search_and_return_summaries(charge) for charge in selected_charges}
-    
-    summarized_results = {}
-    for charge, details in search_results.items():
-        summarized_results[charge] = gptlaw.summarize_case_details(details)
-    return render_template('stored_results.html', results=summarized_results)
+    try:
+        search_results = {charge: caseSearch.search_and_return_summaries(charge) for charge in selected_charges}
+        
+        summarized_results = {}
+        for charge, details in search_results.items():
+            summarized_results[charge] = gptlaw.summarize_case_details(details)
+        
+        # 추가된 코드: pleading 함수를 호출하고 pleading.html로 연결
+        global case_details, pleading
+        extracted_text = case_details["extracted_text"]
+        plaintiffs = case_details["plaintiffs"]
+        defendants = case_details["defendants"]
+
+        pleading = generate_pleading(extracted_text, plaintiffs, defendants, summarized_results, selected_charges)
+        
+        return render_template('pleading.html', pleading=pleading)
+    except openai.error.APIError as e:
+        flash('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
+        return redirect(url_for('index'))
 
 @app.route('/stored-results')
 def stored_results():
@@ -92,16 +109,14 @@ def download_file(filename):
 
 @app.route('/pleading')
 def pleading():
-    global case_details, summarized_results, pleading
+    global case_details, summarized_results, pleading ,selected_charges
     extracted_text = case_details["extracted_text"]
     plaintiffs = case_details["plaintiffs"]
     defendants = case_details["defendants"]
 
-    pleading = generate_pleading(extracted_text, plaintiffs, defendants, summarized_results)
+    pleading = generate_pleading(extracted_text, plaintiffs, defendants, summarized_results,selected_charges)
     
     return render_template('pleading.html', pleading=pleading)
-
-
 
 @app.route('/download-pleading-pdf')
 def download_pleading_pdf():
@@ -119,9 +134,25 @@ def download_pleading_pdf():
 
 @app.route('/defendant-response')
 def defendant_response():
-    # 피고의 답변서 생성 로직을 여기에 추가합니다.
-    # 예: 답변서를 생성하고 사용자에게 보여주거나 다운로드할 수 있게 함
-    return "피고의 답변서 내용이 여기에 표시됩니다."
+    global case_details, pleading, defendant_reply
+    extracted_text = case_details["extracted_text"]
+    defendants = case_details["defendants"]
+    
+    # 피고의 답변서 생성
+    defendant_reply = makeDefendantReply(extracted_text, defendants, pleading)
+    
+    return render_template('defendantReply.html', defendant_reply=defendant_reply)
+
+
+@app.route('/download-pleading-pdf')
+def download_defendant_pdf():
+    global defendant_reply
+    full_text = f"피고의 답변서: {defendant_reply}"
+    output_pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], 'defendant.pdf')
+
+    save_text_to_pdf(full_text, output_pdf_path)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], 'defendant.pdf')
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
