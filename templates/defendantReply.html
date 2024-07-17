@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>소장</title>
+    <title>피고의 답변서</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
@@ -50,19 +50,19 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .pleading-section {
+        .reply-section {
             width: 100%;
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .pleading-section h1 {
+        .reply-section h1 {
             margin-bottom: 10px;
             font-size: 32px;
             color: #007bff;
         }
 
-        .pleading-section pre {
+        .reply-section pre {
             text-align: left;
             background: #f8f9fa;
             padding: 20px;
@@ -112,15 +112,14 @@
 <body>
     <div class="container">
         <header>
-            소장
+            피고의 답변서
         </header>
         <div class="main-content">
             <div class="content-wrapper">
-                <div class="pleading-section">
-                    <h1>소장 문서</h1>
-                    <pre>{{ pleading }}</pre>
-                    <a href="{{ url_for('download_pleading_pdf') }}" class="styled-button">소장을 PDF로 다운로드</a>
-                    <a href="{{ url_for('defendant_response') }}" class="styled-button">피고의 답변서</a>
+                <div class="reply-section">
+                    <h1>피고의 답변서</h1>
+                    <pre>{{ defendant_reply }}</pre>
+                    <a href="{{ url_for('download_defendant_pdf') }}" class="styled-button">답변서 다운로드</a>
                 </div>
             </div>
         </div>

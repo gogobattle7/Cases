@@ -1,109 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summarized Result</title>
+    <title>죄명 선택</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, #e0e0e0 25%, #ffffff 100%);
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .result-container {
-            background: white;
+            align-items: flex-start;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-section {
             text-align: center;
+            margin-bottom: 30px;
         }
-        .result-container h1 {
-            margin-bottom: 20px;
+
+        .result-section h1 {
+            margin-bottom: 10px;
+            font-size: 32px;
+            color: #007bff;
         }
-        .result-container ul {
-            list-style-type: none;
-            padding: 0;
+
+        .checkbox-container {
+            width: 100%;
+            text-align: left;
         }
-        .result-container li {
+
+        .checkbox-container label {
+            display: block;
             margin: 10px 0;
             padding: 10px;
             background-color: #e9ecef;
             border-radius: 5px;
         }
-        .result-container a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            color: white;
-            background-color: #007bff;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .checkbox-container {
-            display: inline-block;
-            margin-top: 10px;
-            text-align: left;
-        }
-        .checkbox-container label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .add-checkbox {
-            margin-top: 20px;
-        }
+
         .styled-button {
             display: inline-block;
-            padding: 10px 20px;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: 500;
             color: white;
             background-color: #28a745;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
             text-decoration: none;
-            font-size: 16px;
         }
+
         .styled-button.add {
             background-color: #007bff;
+            margin-top: 20px;
         }
+
         .styled-button:hover {
             opacity: 0.9;
         }
+
         .styled-input {
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-right: 10px;
+            margin-top: 20px;
+        }
+
+        .download-button {
+            display: inline-block;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 30px;
+        }
+
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div class="result-container">
-        <h1>Extracted Charges</h1>
-        <form action="/precedent" method="POST">
-            <div class="checkbox-container" id="checkbox-container">
-                {% for charge in charges %}
-                <label><input type="checkbox" name="charges[]" value="{{ charge }}"> {{ charge }}</label>
-                {% endfor %}
+    <div class="container">
+        <header>
+            죄명 선택
+        </header>
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="result-section">
+                    <h1>추출된 혐의</h1>
+                    <p>아래의 목록에서 해당하는 혐의를 선택하세요. 필요한 경우 새로운 혐의를 추가할 수 있습니다.</p>
+                    <form action="/precedent" method="POST">
+                        <div class="checkbox-container" id="checkbox-container">
+                            {% for charge in charges %}
+                            <label><input type="checkbox" name="charges[]" value="{{ charge }}"> {{ charge }}</label>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="styled-button">제출</button>
+                    </form>
+                    <input type="text" id="new-charge" class="styled-input" placeholder="새로운 혐의 추가">
+                    <button class="styled-button add" onclick="addCheckbox()">추가</button>
+                    {% if pdf_path %}
+                    <a href="{{ url_for('download_file', filename=pdf_path) }}" class="download-button">정리된 PDF 다운로드</a>
+                    {% endif %}
+                    {% if result %}
+                    <h2>검색 결과</h2>
+                    <pre>{{ result }}</pre>
+                    {% endif %}
+                </div>
             </div>
-            <button type="submit" class="styled-button">Submit</button>
-        </form>
-        <div class="add-checkbox">
-            <input type="text" id="new-charge" class="styled-input" placeholder="Add new charge">
-            <button class="styled-button add" onclick="addCheckbox()">Add</button>
         </div>
-        {% if pdf_path %}
-        <a href="{{ url_for('download_file', filename=pdf_path) }}" class="styled-button">Download Refined PDF</a>
-        {% endif %}
-        {% if result %}
-        <h2>Search Results</h2>
-        <pre>{{ result }}</pre>
-        {% endif %}
+        <footer>
+            &copy; 2024 요약된 결과. 모든 권리 보유. | <a href="/privacy">개인정보처리방침</a>
+        </footer>
     </div>
     <script>
         function addCheckbox() {

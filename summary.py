@@ -29,7 +29,7 @@ def refine_text_with_form_gpt(transcript_text):
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"다음 내용에서 원고와 피고를 분리하고, 법적 쟁점이 성립할 수 있는 죄명과 함께 상세하게 정리해주세요.(참고로 형사재판에서는 검사vs피고인 이고 민사재판에서는 원고vs 피고입니다. 그리고 죄명:설명 이런식으로 정리해주세요) :\n\n{formatted_text}"}
+            {"role": "user", "content": f"다음 내용에서 원고와 피고를 분리하고, 법적 쟁점이 성립할 수 있는 죄명과 함께 상세하게 정리해주세요. (참고로 형사재판에서는 검사vs피고인 이고 민사재판에서는 원고vs 피고입니다. 그리고 죄명:설명 이런식으로 정리해주세요) :\n\n{formatted_text}"}
         ],
         max_tokens=1500,
         n=1,

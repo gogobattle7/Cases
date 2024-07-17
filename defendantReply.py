@@ -9,12 +9,13 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # AI를 통해 텍스트 요약
-def makeDefendantReply(extracted_text, defendants, pleading):
+def makeDefendantReply(extracted_text, defendants, pleading,selected_charges):
     try:
         user_message_content = (
             f"사건 내용은{extracted_text} 입니다"
             f"사건의 피고는 {defendants} 입니다"
             f"소장의 내용은 {pleading} 입니다"
+            f"{selected_charges}에 대해서만 반론하면 됩니다. 다른 죄명은 언급하지 말아주세요"
             "피고의 입장에서 소장에 대한 답변서를 작성해주세요"
         )
 

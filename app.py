@@ -134,17 +134,17 @@ def download_pleading_pdf():
 
 @app.route('/defendant-response')
 def defendant_response():
-    global case_details, pleading, defendant_reply
+    global case_details, pleading, defendant_reply,selected_charges
     extracted_text = case_details["extracted_text"]
     defendants = case_details["defendants"]
     
     # 피고의 답변서 생성
-    defendant_reply = makeDefendantReply(extracted_text, defendants, pleading)
+    defendant_reply = makeDefendantReply(extracted_text, defendants, pleading,selected_charges)
     
     return render_template('defendantReply.html', defendant_reply=defendant_reply)
 
 
-@app.route('/download-pleading-pdf')
+@app.route('/download-defendant-pdf')
 def download_defendant_pdf():
     global defendant_reply
     full_text = f"피고의 답변서: {defendant_reply}"
