@@ -107,7 +107,7 @@ def precedent():
         return render_template('pleading.html', pleading=pleading)
     except openai.error.APIError as e:
         flash('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
-        # return redirect(url_for('index'))
+        return redirect(url_for('index'))
 
 @app.route('/stored-results')
 def stored_results():
