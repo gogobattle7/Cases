@@ -86,18 +86,28 @@ def precedent():
         for charge, details in search_results.items():
             summarized_results[charge] = gptlaw.summarize_case_details(details)
         
+         # 추가된 코드: prompt 폴더에 있는 관련 PDF 파일 읽기
+        prompt_texts = {}
+        for charge in selected_charges:
+            prompt_file_path = os.path.join('prompt', f'{charge}.pdf')
+            if os.path.exists(prompt_file_path):
+                with open(prompt_file_path, 'rb') as f:
+                    prompt_text = extract_text_from_pdf(f)
+                    prompt_texts[charge] = prompt_text
+        
+        
         # 추가된 코드: pleading 함수를 호출하고 pleading.html로 연결
         global case_details, pleading
         extracted_text = case_details["extracted_text"]
         plaintiffs = case_details["plaintiffs"]
         defendants = case_details["defendants"]
 
-        pleading = generate_pleading(extracted_text, plaintiffs, defendants, summarized_results, selected_charges)
+        pleading = generate_pleading(extracted_text, plaintiffs, defendants, summarized_results, selected_charges,prompt_texts)
         
         return render_template('pleading.html', pleading=pleading)
     except openai.error.APIError as e:
         flash('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
-        return redirect(url_for('index'))
+        # return redirect(url_for('index'))
 
 @app.route('/stored-results')
 def stored_results():

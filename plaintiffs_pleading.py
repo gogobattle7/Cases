@@ -9,57 +9,39 @@ load_dotenv()
 # OpenAI API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def generate_pleading(extracted_text, plaintiffs, defendants, summarized_results, selected_charges):
+def generate_pleading(extracted_text, plaintiffs, defendants, summarized_results, selected_charges,prompt_texts):
     try:
-        # 원고 리스트와 피고 리스트를 하나의 문자열로 결합
-        # print(summarized_results)
-        # print("분리")
-        # print(selected_charges)
-        
         plaintiffs_str = ', '.join(plaintiffs)
         defendants_str = ', '.join(defendants)
-
-        # # 각 청구 원인에 대한 상세 작성
-        # legal_reasons = ""
-        # for charge in selected_charges:
-        #     if charge in summarized_results:
-        #         summaries = summarized_results[charge]
-        #         for summary in summaries:
-        #             response = openai.ChatCompletion.create(
-        #                 model="gpt-4",
-        #                 messages=[
-        #                     {"role": "system", "content": "You are a legal assistant providing legal reasoning for a complaint."},
-        #                     {"role": "user", "content": f"사실 관계: {summary}\n이 사실 관계와 관련된 법적 쟁점과 판례 법리를 설명해 주세요. 법적 근거와 판례 법리를 포함하여 이 사실 관계가 어떻게 해당 법조항에 적용되는지 설명해 주세요. 이를 하나의 자연스러운 문단으로 연결하여 작성해 주세요."}
-        #                 ],
-        #                 max_tokens=500,
-        #                 n=1,
-        #                 stop=None,
-        #                 temperature=0.7
-        #             )
-
-        #             legal_reasoning = response.choices[0].message['content'].strip()
-        #             legal_reasons += f"{charge}:\n{legal_reasoning}\n\n"
-
+        template=""
         # 소장 템플릿
-        template = f"""
-        원고: {plaintiffs_str}
-        피고: {defendants_str}
-        
-        법적 쟁점:
-        {selected_charges}
-        법조문:
-        
-        관련 판례:
+         # prompt_texts가 비어 있는지 확인
+        if not prompt_texts:
+            template = f"""
+            원고: {plaintiffs_str}
+            피고: {defendants_str}
 
-        청구 원인:
+            법적 쟁점:
+            {selected_charges}
+            법조문:
+
+            관련 판례:
+
+            청구 원인:
+
+            이에 본 소를 제기합니다.
+
+            이 양식을 지켜주세요
+            """
+        else:
+            template=f"""
+                {prompt_texts}
+            """
         
-        이에 본 소를 제기합니다.
         
-        이 양식을 지켜주세요
-        """
         user_message_content = (
             "아래의 정보를 포함한 소장을 작성해 주세요. "
-            f"소장의 양식은 {template}를 반드시 지켜주세요"
+            f"소장의 양식은 {template}를 참고해주세요"
             f"사건의 내용은 {extracted_text} 입니다"
             "원고: 주소가 반드시 포함되어야 합니다.\n\n"
             "피고: 피고는 각 피고별로 번호를 매겨서 적어 주세요. 주소가 반드시 포함되어야 합니다.\n\n"
